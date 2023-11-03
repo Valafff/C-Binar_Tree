@@ -441,6 +441,7 @@ public:
 
 		do
 		{
+			depth++;
 			if (tempelement->Data == min)
 			{
 				break;
@@ -458,10 +459,11 @@ public:
 			{
 				break;
 			}
-			depth++;
+
 
 		} while (true);
 
+		tempelement = arg_Root;
 		do
 		{
 			depth_2++;
@@ -486,7 +488,14 @@ public:
 
 		} while (true);
 
-		cout << "Глубина дерева равна:\t" << depth_2/*depth ? depth_2 : depth*/;
+		if (depth>depth_2)
+		{
+			cout << "Глубина дерева равна:\t" << depth << endl;
+		}
+		else
+		{
+			cout << "Глубина дерева равна:\t" << depth_2 << endl;
+		}
 
 	}
 };
@@ -524,7 +533,7 @@ int main()
 	// Печать рекурсией
 	tree.print(tree.getRoot());
 	cout << endl;
-	//tree.depth(tree.getRoot());
+	tree.depth(tree.getRoot());
 
 
 
