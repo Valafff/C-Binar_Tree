@@ -1,9 +1,16 @@
 ﻿#include <iostream>
+//#define SMOKER_TREE
+#define HEALTHY_MAN_TREE
 
+#define BASE_CHECK
+//#define NOT_RANDOM_TREE
+
+#ifdef SMOKER_TREE
 using namespace std;
 
 class Tree
 {
+protected:
 	class Element
 	{
 		int Data;
@@ -12,14 +19,21 @@ class Tree
 	public:
 		Element(int data, Element* pLeft = nullptr, Element* pRight = nullptr) : Data(data), pLeft(pLeft), pRight(pRight)
 		{
+#ifdef DEBUG
 			cout << "Element Constructor:\t" << this << endl;
-		}
+#endif // DEBUG
+
+	}
 		~Element()
 		{
+#ifdef DEBUG
 			cout << "Element Destructor:\t" << this << endl;
-		}
+#endif // DEBUG
+
+}
 		// Класс Tree видит, что в Elelement
 		friend class Tree;
+		friend class UnicTree;
 	}*Root;//Создали указатель на объект Root - корневой элемент
 
 public:
@@ -32,10 +46,74 @@ public:
 		Root = nullptr;
 		cout << "Tree Constructor:\t " << this << endl;
 	}
+	Tree(initializer_list<int> il) :Tree()
+	{
+
+		for (int const* it = il.begin(); it != il.end(); ++it)
+		{
+			insert(*it, Root);
+		}
+
+	}
 	~Tree()
 	{
+		//clear(Root);
 		cout << "Tree Destructor:\t" << this << endl;
 	}
+
+	//Обертка для упрощения вызова методов классов
+	//void insert(int Data)
+	//{
+	//	(Data, Root);
+	//}
+
+	//double avg() const
+	//{
+	//	print(Root);
+	//	cout << endl;
+	//}
+
+	//void print()
+	//{
+	//	print(Root);
+	//	cout << endl;
+	//}
+
+
+
+	//int minvalue()const
+	//{
+	//	return minValue(Root);
+	//}
+
+	//int sum()const
+	//{
+	//	return sum(Root);
+	//}
+
+	//int	maxValue(Element* Root) const
+	//{
+	//	if (Root == nullptr)return 0;
+	//	if (Root->pRight == nullptr)return Root->Data;
+	//	else return maxValue(Root->pRight);
+	//}
+	//int maxValue()
+	//{
+	//	maxValue(Root);
+	//}
+
+	//int minValue(Element* Root)
+	//{
+	//	if (Root == nullptr)return 0;
+	//	if (Root->pLeft == nullptr)return Root->Data;
+	//	else return minValue(Root->pLeft);
+	//}
+
+	//int count() 
+	//{
+	//	return count(Root);
+	//}
+
 
 	void insert(int Data, Element* Root)
 	{
@@ -75,6 +153,34 @@ public:
 			}
 		}
 	}
+
+	//eraseздорового человека
+	//void erase(int Data, Element* Root)
+	//{
+
+	//	if (Root == nullptr)return;
+	//	if (Data == Root->Data)
+	//	{
+	//		if (Root->pLeft == Root->pRight)
+	//		delete Root;
+	//		Root = nullptr;
+	//	}
+	//	else
+	//	{
+	//		if (count(Root->pLeft) > count(Root->pRight))
+	//		{
+
+	//			Root->Data = maxValue(Root.pLeft;
+	//			erase(maxValue(Root.pLeft), Root->pRight);
+	//		}
+	//	}
+
+
+	//}
+	//if (Root)erase(Data, Root.pLeft);
+	//if (Root)erase(Dat)
+
+
 	void print(Element* Root)const
 	{
 		//Элементы дерева по возрастанию
@@ -140,6 +246,21 @@ public:
 		sum(Root->pRight, arg_sum);
 		return arg_sum;
 	}
+
+	//int sum(Element* Root) const
+	//{
+	//	if (Root == nullptr)return 0;
+	//	else sum(Root->pLeft) + sum(Root->pRight) + Root->Data;
+	// 
+	//return Root == nulptr ? 0 : sum(Root.pLef) + sum(Root.pRight) + Root.Data;
+	//}
+
+	//int count(Element* Root)
+	//{
+	//	return Root == nullptr ? 0 : count(Root->pLeft) + count(Root->pRight) + 1;
+	//}
+
+
 	// Подсчет количества элементов дерева
 	int count(Element* Root, int& arg_count)
 	{
@@ -238,6 +359,18 @@ public:
 			}
 		} while (true);
 	}
+	//// Clear здрового человека
+	//void clear(Element* Root)
+	//{
+	//	if (Root == nullptr)return;
+	//	clear(Root->pLeft);
+	//	clear(Root->pRight);
+	//	delete Root;
+	//	Root == nullptr;
+
+	//}
+
+
 	//Удаление элемента в бинарном дереве
 	void erase(Element* arg_Root, int arg_number)
 	{
@@ -350,8 +483,6 @@ public:
 
 					data_2->pLeft = tempelement->pLeft;
 
-
-
 					Parent->pRight = data_2;
 					if (tempelement == this->Root)
 					{
@@ -399,7 +530,7 @@ public:
 		Element* temp = Root;
 		int depth = 0;
 		int depth_2 = 0;
-		int maxway=0, max=0, min=0;
+		int maxway = 0, max = 0, min = 0;
 
 		do
 		{
@@ -447,7 +578,7 @@ public:
 				break;
 			}
 			else if (tempelement->Data > min)
-			
+
 			{
 				tempelement = tempelement->pLeft;
 			}
@@ -488,7 +619,7 @@ public:
 
 		} while (true);
 
-		if (depth>depth_2)
+		if (depth > depth_2)
 		{
 			cout << "Глубина дерева равна:\t" << depth << endl;
 		}
@@ -500,9 +631,65 @@ public:
 	}
 };
 
+
+class UnicTree :public Tree
+{
+
+
+
+
+	void insert(int Data, Element* Root)
+	{
+		// Если нулевой корень дерева пуст - создаем новый элемент и записываем его в нулевой корень со значением Data
+		if (this->Root == nullptr)
+		{
+			this->Root = new Element(Data);
+			// Применительно к текущей задаче - достаточно return в текущем if-е. Условие выхода из рекурсии не требуется
+			//return;
+		}
+		if (Root == nullptr)return;
+		//Условие выхода из рекурсии Если pLeft или pRight == nulptr (у элемента нет детей) - выходим из метода =>> из рекурсии
+		//if (Root == nullptr) return;
+
+		//Если корень хранит данные, то сравниваем значения с данными текущего корня и пришедшими данными
+		if (Data < Root->Data)
+		{
+			//Если левй элемент отсутствует - создаем его и записываем дуда значение Data 
+			if (Root->pLeft == nullptr)
+			{
+				Root->pLeft = new Element(Data);
+			}
+			//Иначе вызываем рекурсивный метод, где аргументами будут являться Data(пришла аргументом ранее) и указатель на левый элемент корня. и так пока не будет найдено место куда можно записать Data. В рекурсии Data может попасть и в правый элемент
+			else
+			{
+				insert(Data, Root->pLeft);
+			}
+		}
+		// Доделать.
+		else if (Data > Root->Data)
+		{
+			if (Root->pRight == nullptr)
+			{
+				Root->pRight = new Element(Data);
+			}
+			else
+			{
+				insert(Data, Root->pRight);
+			}
+		}
+	}
+public:
+	void insert(int Data)
+	{
+		insert(Data, Root);
+	}
+};
+
+
 int main()
 {
 	setlocale(LC_ALL, "");
+
 	int n;
 	int sum = 0, count = 0;
 	cout << "Введите размер дерева: "; cin >> n;
@@ -536,11 +723,273 @@ int main()
 	tree.depth(tree.getRoot());
 
 
-
 	tree.clear(tree.getRoot());
-
 	cout << endl;
 
+	UnicTree u_tree;
+	for (size_t i = 0; i < n; i++)
+	{
+		tree.insert(rand() % 100, tree.getRoot()); // getroot -передает адрес корня
+	}
 }
+#endif // SMOKER_TREE
 
 
+
+using namespace std;
+using std::cin;
+using std::cout;
+using std::endl;
+
+class Tree
+{
+protected:
+	class Element
+	{
+		int Data;
+		Element* pLeft;
+		Element* pRight;
+	public:
+		Element(int Data, Element* pLeft = nullptr, Element* pRight = nullptr) :Data(Data), pLeft(pLeft), pRight(pRight)
+		{
+#ifdef DEBUG
+			cout << "EConstructor:\t" << this << endl;
+#endif // DEBUG
+		}
+		~Element()
+		{
+#ifdef DEBUG
+			cout << "EDestructor:\t" << this << endl;
+#endif // DEBUG
+		}
+		friend class Tree;
+		friend class UniqueTree;
+	}*Root;
+public:
+	Element* getRoot()
+	{
+		return Root;
+	}
+	Tree()
+	{
+		Root = nullptr;
+		cout << "TConstructor:\t" << this << endl;
+	}
+	//			type		  name
+	Tree(initializer_list<int> il) :Tree()
+	{
+		//begin() - возвращает итератор на начало контейнера;
+		//end()   - возвращает итератор на конец контейнера;
+		for (int const* it = il.begin(); it != il.end(); ++it)
+			insert(*it, Root);
+	}
+	~Tree()
+	{
+		clear(Root);
+		cout << "TDestructor:\t" << this << endl;
+	}
+	void insert(int Data)
+	{
+		insert(Data, Root);
+	}
+	void erase(int Data)
+	{
+		erase(Data, Root);
+	}
+	int minValue()const
+	{
+		return minValue(Root);
+	}
+	int maxValue()const
+	{
+		return maxValue(Root);
+	}
+	int sum()const
+	{
+		return sum(Root);
+	}
+	int count()const
+	{
+		return count(Root);
+	}
+	double avg()const
+	{
+		return (double)sum(Root) / count(Root);
+	}
+	void print()const
+	{
+		print(Root);
+		cout << endl;
+	}
+private:
+	void insert(int Data, Element* Root)
+	{
+		if (this->Root == nullptr)this->Root = new Element(Data);
+		if (Root == nullptr)return;
+		if (Data < Root->Data)
+		{
+			if (Root->pLeft == nullptr)Root->pLeft = new Element(Data);
+			else insert(Data, Root->pLeft);
+		}
+		else
+		{
+			if (Root->pRight == nullptr)Root->pRight = new Element(Data);
+			else insert(Data, Root->pRight);
+		}
+	}
+	void erase(int Data, Element*& Root)
+	{
+		if (Root == nullptr)return;
+		if (Data == Root->Data)
+		{
+			if (Root->pLeft == Root->pRight)
+			{
+				delete Root;
+				Root = nullptr;
+			}
+			else
+			{
+				if (count(Root->pLeft) > count(Root->pRight))
+				{
+					Root->Data = maxValue(Root->pLeft);
+					erase(maxValue(Root->pLeft), Root->pLeft);
+				}
+				else
+				{
+					Root->Data = minValue(Root->pRight);
+					erase(minValue(Root->pRight), Root->pRight);
+				}
+			}
+		}
+		if (Root)erase(Data, Root->pLeft);
+		if (Root)erase(Data, Root->pRight);
+	}
+	void clear(Element* Root)
+	{
+		if (Root == nullptr)return;
+		clear(Root->pLeft);
+		clear(Root->pRight);
+		delete Root;
+		Root = nullptr;
+	}
+	int minValue(Element* Root)const
+	{
+		if (Root == nullptr)return 0;
+		/*if (Root->pLeft == nullptr)return Root->Data;
+		else return minValue(Root->pLeft);*/
+		return Root->pLeft == nullptr ? Root->Data : minValue(Root->pLeft);
+	}
+	int maxValue(Element* Root)const
+	{
+		if (Root == nullptr)return 0;
+		/*if (Root->pRight == nullptr)return Root->Data;
+		else return maxValue(Root->pRight);*/
+		return Root->pRight == nullptr ? Root->Data : maxValue(Root->pRight);
+		//return Root->pRight ? maxValue(Root->pRight) : Root->Data;
+	}
+	int sum(Element* Root)const
+	{
+		/*if (Root == nullptr)return 0;
+		else return sum(Root->pLeft) + sum(Root->pRight) + Root->Data;*/
+		return Root == nullptr ? 0 : sum(Root->pLeft) + sum(Root->pRight) + Root->Data;
+	}
+	int count(Element* Root)const
+	{
+		return Root == nullptr ? 0 : count(Root->pLeft) + count(Root->pRight) + 1;
+	}
+	void print(Element* Root)const
+	{
+		if (Root == nullptr)return;
+		print(Root->pLeft);
+		cout << Root->Data << "\t";
+		print(Root->pRight);
+	}
+};
+class UniqueTree :public Tree
+{
+	void insert(int Data, Element* Root)
+	{
+		if (this->Root == nullptr)this->Root = new Element(Data);
+		if (Root == nullptr)return;
+		if (Data < Root->Data)
+		{
+			if (Root->pLeft == nullptr)Root->pLeft = new Element(Data);
+			else insert(Data, Root->pLeft);
+		}
+		else if (Data > Root->Data)
+		{
+			if (Root->pRight == nullptr)Root->pRight = new Element(Data);
+			else insert(Data, Root->pRight);
+		}
+	}
+public:
+	void insert(int Data)
+	{
+		insert(Data, Root);
+	}
+};
+
+
+
+void main()
+{
+	setlocale(LC_ALL, "");
+
+#ifdef BASE_CHECK
+	int n;
+	cout << "Введите размер дерева: "; cin >> n;
+	Tree tree;
+	for (int i = 0; i < n; i++)
+	{
+		tree.insert(rand() % 100);
+	}
+	tree.print();
+	cout << endl;
+	cout << "Минимальное значение в дереве: " << tree.minValue() << endl;
+	cout << "Максимальное значение в дереве: " << tree.maxValue() << endl;
+	cout << "Сумма элементов дерева: " << tree.sum() << endl;
+	cout << "Количество элементов дерева: " << tree.count() << endl;
+	cout << "Среднее-арифметическое элементов дерева: " << tree.avg() << endl;
+
+	UniqueTree u_tree;
+	for (int i = 0; i < n; i++)
+	{
+		u_tree.insert(rand() % 100);
+	}
+	u_tree.print();
+	cout << endl;
+	cout << "Минимальное значение в дереве: " << u_tree.minValue() << endl;
+	cout << "Максимальное значение в дереве: " << u_tree.maxValue() << endl;
+	cout << "Сумма элементов дерева: " << u_tree.sum() << endl;
+	cout << "Количество элементов дерева: " << u_tree.count() << endl;
+	cout << "Среднее-арифметическое элементов дерева: " << u_tree.avg() << endl;
+
+	int value;
+	cout << "Введите удаляемое значение: "; cin >> value;
+	tree.erase(value);
+	tree.print();
+
+#endif // BASE_CHECK
+
+
+
+#ifdef NOT_RANDOM_TREE
+
+	Tree tree =
+	{
+						50,
+
+			25,						75,
+
+		16,		32,				64,		80
+	};
+	tree.print();
+	int value;
+	cout << "Введите удаляемое значение: "; cin >> value;
+	tree.erase(value);
+	tree.print();
+
+#endif // NOT_RANDOM_TREE
+
+
+}
