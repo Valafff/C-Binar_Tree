@@ -3,7 +3,7 @@
 #define HEALTHY_MAN_TREE
 
 #define BASE_CHECK
-//#define NOT_RANDOM_TREE
+#define NOT_RANDOM_TREE
 
 #ifdef SMOKER_TREE
 using namespace std;
@@ -23,14 +23,14 @@ protected:
 			cout << "Element Constructor:\t" << this << endl;
 #endif // DEBUG
 
-	}
+		}
 		~Element()
 		{
 #ifdef DEBUG
 			cout << "Element Destructor:\t" << this << endl;
 #endif // DEBUG
 
-}
+		}
 		// Класс Tree видит, что в Elelement
 		friend class Tree;
 		friend class UnicTree;
@@ -821,6 +821,40 @@ public:
 		print(Root);
 		cout << endl;
 	}
+
+	//Максимальная глубина дерева
+	int depth() const
+	{
+		return depth(Root);
+	}
+
+	int depth(Element* Root) const
+	{
+
+		if (Root == nullptr)
+		{
+			return 0;
+		}
+		if (depth(Root->pLeft) + 1 > depth(Root->pRight) + 1)
+		{
+			return depth(Root->pLeft) + 1;
+		}
+		else
+		{
+			return depth(Root->pRight) + 1;
+		}
+	}
+
+	//Вывод элементов дерева на заданной глубине
+	void print_element_in_depth(Element* Root, int depth)
+	{
+
+
+
+	}
+
+
+
 private:
 	void insert(int Data, Element* Root)
 	{
@@ -904,6 +938,12 @@ private:
 		cout << Root->Data << "\t";
 		print(Root->pRight);
 	}
+
+
+
+
+
+
 };
 class UniqueTree :public Tree
 {
@@ -950,6 +990,10 @@ void main()
 	cout << "Сумма элементов дерева: " << tree.sum() << endl;
 	cout << "Количество элементов дерева: " << tree.count() << endl;
 	cout << "Среднее-арифметическое элементов дерева: " << tree.avg() << endl;
+	cout << "Глубина дерева: " << tree.depth() << endl;
+
+
+
 
 	UniqueTree u_tree;
 	for (int i = 0; i < n; i++)
@@ -964,10 +1008,12 @@ void main()
 	cout << "Количество элементов дерева: " << u_tree.count() << endl;
 	cout << "Среднее-арифметическое элементов дерева: " << u_tree.avg() << endl;
 
+
 	int value;
 	cout << "Введите удаляемое значение: "; cin >> value;
 	tree.erase(value);
 	tree.print();
+
 
 #endif // BASE_CHECK
 
@@ -981,15 +1027,20 @@ void main()
 
 			25,						75,
 
-		16,		32,				64,		80
+		16,		32,				64,		80,
+		17
 	};
 	tree.print();
 	int value;
-	cout << "Введите удаляемое значение: "; cin >> value;
-	tree.erase(value);
+	//cout << "Введите удаляемое значение: "; cin >> value;
+	//tree.erase(value);
 	tree.print();
+	cout << "Глубина дерева: " << tree.depth() << endl;
 
 #endif // NOT_RANDOM_TREE
+
+
+
 
 
 }
