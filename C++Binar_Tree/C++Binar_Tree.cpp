@@ -1,8 +1,38 @@
 ﻿#include <iostream>
+#include <ctime>
+#include <time.h>
+#include<Windows.h>//	Sleep;
+#include<conio.h>
+#include <chrono>
+
+using namespace std;
+using std::cin;
+using std::cout;
+using std::endl;
+
+//Суповой набор от Эммы
+enum Color
+{
+	Black, Blue, Green, Cyan, Red, Magenta, Brown,
+	LightGray, DarkGray, LightBlue, LightGreen, LightCyan, LightRed, LightMagenta, Yellow, White
+};
+HANDLE hStdOut = GetStdHandle(STD_OUTPUT_HANDLE);//получаем дискриптор активного окна
+void setColor(Color text, Color background)
+{
+	SetConsoleTextAttribute(hStdOut, (WORD)((background << 4) | text));
+}
+enum Direction { Up = 72, Left = 75, Right = 77, Down = 80, Enter = 13, esc = 27 };
+void setCursor(int x, int y)
+{
+	COORD myCoords = { x,y };//инициализируем передаваемыми значениями объект координат
+	SetConsoleCursorPosition(hStdOut, myCoords);
+}
+
+
 //#define SMOKER_TREE
 #define HEALTHY_MAN_TREE
 
-#define BASE_CHECK
+#define BASE_CHECK // базовое дерево с псевдослучайным наполнением
 #define NOT_RANDOM_TREE
 
 #ifdef SMOKER_TREE
@@ -735,14 +765,9 @@ int main()
 #endif // SMOKER_TREE
 
 
-
-using namespace std;
-using std::cin;
-using std::cout;
-using std::endl;
-
 class Tree
 {
+	//protected Позволяет видеть поля классу наследнику
 protected:
 	class Element
 	{
@@ -765,6 +790,7 @@ protected:
 		friend class Tree;
 		friend class UniqueTree;
 	}*Root;
+
 public:
 	Element* getRoot()
 	{
@@ -835,24 +861,139 @@ public:
 		{
 			return 0;
 		}
-		if (depth(Root->pLeft) + 1 > depth(Root->pRight) + 1)
-		{
-			return depth(Root->pLeft) + 1;
-		}
-		else
-		{
-			return depth(Root->pRight) + 1;
-		}
+		//if (depth(Root->pLeft) + 1 > depth(Root->pRight) + 1)
+		//{
+		//	return depth(Root->pLeft) + 1;
+		//}
+		//else
+		//{
+		//	return depth(Root->pRight) + 1;
+		//}
+		int l_depth = depth(Root->pLeft) + 1;
+		int r_depth = depth(Root->pRight) + 1;
+		return l_depth > r_depth ? l_depth : r_depth;
+
 	}
 
-	//Вывод элементов дерева на заданной глубине
-	void print_element_in_depth(Element* Root, int depth)
+	//Вывод элементов дерева на заданной глубине //depth - глубина
+	void PrintDepth(int var)
 	{
+		PrintDepth(Root, var);
+	}
+	void PrintDepth(Element* Root, int var)
+	{
+		static int sdcount = 1;
+		if (Root == nullptr)
+		{
+			return;
+		}
+		sdcount++;
+		PrintDepth(Root->pLeft, var);
+		PrintDepth(Root->pRight, var);
+		sdcount--;
 
-
-
+		if (sdcount == var)
+		{
+			cout << Root->Data << "\t";
+		}
 	}
 
+	//Отрисовка дерева
+	void PrintTree(int X, int Y)
+	{
+		PrintTree(Root, X, Y);
+	}
+	int size = 4;
+	void PrintTree(Element* Root, int X, int Y)
+	{
+		int tempX = X;
+		int tempY = Y;
+		if (Root == nullptr)return;
+		if (Root->pRight == nullptr && Root->pLeft == nullptr)
+		{
+			setColor(Black, LightGreen);
+		}
+		else setColor(Black, Brown);
+		setCursor(X, Y);
+		cout << Root->Data << endl;
+		if (Root->pLeft != nullptr)
+		{
+			setColor(Red, Black);
+			for (size_t i = 0; i < size; i++)
+			{
+				setCursor(X - 1, Y + 1);
+				cout << "/" << endl;
+				X--;
+				Y++;
+			}
+			setCursor(X, Y + 1);
+			setColor(White, Black);
+		}
+		if (Root->pRight != nullptr)
+		{
+			setColor(Red, Black);
+			for (size_t i = 0; i < size; i++)
+			{
+				setCursor(tempX + 1, tempY + 1);
+				cout << "\\" << endl;
+				tempX++;
+				tempY++;
+			}
+			setCursor(tempX, tempY + 1);
+			setColor(White, Black);
+		}
+		size = 6;
+		PrintTree(Root->pLeft, X, Y);
+		PrintTree(Root->pRight, tempX, tempY);
+		size--;
+		if (size == 1) size = 6;
+		setColor(White, Black);
+	}
+
+	void TreeBalance()
+	{
+		TreeBalance(Root);
+	}
+	void TreeBalance(Element*& Root)//ВЕРНОЕ РЕШЕНИЕ
+	{
+		int temp = Root->Data;
+		while (abs(count(Root->pLeft) - count(Root->pRight)) > 1)
+		{
+			temp = Root->Data;
+			if (Root == nullptr) return;
+			if (abs(count(Root->pLeft) - count(Root->pRight)) < 2) return;
+			else
+			{
+				erase(temp);
+				insert(temp);
+			}
+			TreeBalance(Root->pRight);
+			TreeBalance(Root->pLeft);
+		}
+	}
+
+	//Счетчик времени выполнения метода в секундах
+	double m_Counter(Tree* obj, int (Tree::* ptr)()const)
+	{
+		clock_t start = clock();
+		(obj->*ptr)();
+		clock_t end = clock();
+		return double(end - start) / CLOCKS_PER_SEC;
+	}
+	double double_m_Counter(Tree* obj, double (Tree::* ptr)()const)
+	{
+		clock_t start = clock();
+		(obj->*ptr)();
+		clock_t end = clock();
+		return double(end - start) / CLOCKS_PER_SEC;
+	}
+	double void_m_Counter(Tree* obj, void (Tree::* ptr)()const)
+	{
+		clock_t start = clock();
+		(obj->*ptr)();
+		clock_t end = clock();
+		return double(end - start) / CLOCKS_PER_SEC;
+	}
 
 
 private:
@@ -939,12 +1080,9 @@ private:
 		print(Root->pRight);
 	}
 
-
-
-
-
-
 };
+
+//Унаследованный класс - уникальное дерево - отсутствуют повторяющиеся элементы - модифицирован метод insert
 class UniqueTree :public Tree
 {
 	void insert(int Data, Element* Root)
@@ -974,32 +1112,66 @@ public:
 void main()
 {
 	setlocale(LC_ALL, "");
-
+	int d = 3;
+	int (Tree:: * ptr)()const;
+	double(Tree:: * dptr)()const;
+	void(Tree:: * vptr)()const;
 #ifdef BASE_CHECK
 	int n;
+
 	cout << "Введите размер дерева: "; cin >> n;
 	Tree tree;
 	for (int i = 0; i < n; i++)
 	{
 		tree.insert(rand() % 100);
 	}
+	setColor(Green, Black);
+	cout << "Значения псевдослучайного дерева:" << endl;
+	setColor(White, Black);
 	tree.print();
 	cout << endl;
 	cout << "Минимальное значение в дереве: " << tree.minValue() << endl;
+	ptr = &Tree::minValue;
+	cout << "Время выполнения minValue: " <<  tree.m_Counter(&tree, ptr) << " секунд" << endl;
+
 	cout << "Максимальное значение в дереве: " << tree.maxValue() << endl;
+	ptr = &Tree::maxValue;
+	cout << "Время выполнения maxValue: " << tree.m_Counter(&tree, ptr) << " секунд" << endl;
+
 	cout << "Сумма элементов дерева: " << tree.sum() << endl;
+	ptr = &Tree::sum;
+	cout << "Время выполнения sum: " << tree.m_Counter(&tree, ptr) << " секунд" << endl;
+
 	cout << "Количество элементов дерева: " << tree.count() << endl;
+	ptr = &Tree::count;
+	cout << "Время выполнения count: " << tree.m_Counter(&tree, ptr) << " секунд" << endl;
+
 	cout << "Среднее-арифметическое элементов дерева: " << tree.avg() << endl;
+	dptr = &Tree::avg;
+	cout << "Время выполнения avg: " << tree.double_m_Counter(&tree, dptr) << " секунд" << endl;
+
 	cout << "Глубина дерева: " << tree.depth() << endl;
+	ptr = &Tree::depth;
+	cout << "Время выполнения depth: " << tree.m_Counter(&tree, ptr) << " секунд" << endl;
 
 
+	cout << "Значения на заданной глубине " << d <<" :  ";
+	tree.PrintDepth(d);
+	cout << endl;
 
+	tree.PrintTree(20, 20);
+
+	_getch();
+	setCursor(0, 30+n);
 
 	UniqueTree u_tree;
 	for (int i = 0; i < n; i++)
 	{
 		u_tree.insert(rand() % 100);
 	}
+	setColor(Red, Black);
+	cout << "\nЗначения псевдослучайного дерева с уникальными значениями:" << endl;
+	setColor(White, Black);
 	u_tree.print();
 	cout << endl;
 	cout << "Минимальное значение в дереве: " << u_tree.minValue() << endl;
@@ -1007,12 +1179,17 @@ void main()
 	cout << "Сумма элементов дерева: " << u_tree.sum() << endl;
 	cout << "Количество элементов дерева: " << u_tree.count() << endl;
 	cout << "Среднее-арифметическое элементов дерева: " << u_tree.avg() << endl;
+	cout << "Глубина уникального дерева: " << u_tree.depth() << endl;
+	cout << "Значения на заданной глубине:  ";
+	u_tree.PrintDepth(d);
+	cout << endl;
+
 
 
 	int value;
 	cout << "Введите удаляемое значение: "; cin >> value;
-	tree.erase(value);
-	tree.print();
+	u_tree.erase(value);
+	u_tree.print();
 
 
 #endif // BASE_CHECK
@@ -1020,27 +1197,49 @@ void main()
 
 
 #ifdef NOT_RANDOM_TREE
-
-	Tree tree =
+	_getch();
+	system("cls");
+	Tree handle_tree =
 	{
-						50,
+						1,
 
-			25,						75,
+			2,						3,
 
-		16,		32,				64,		80,
-		17
+		4,		5,				6,		7,
+		8
 	};
-	tree.print();
-	int value;
-	//cout << "Введите удаляемое значение: "; cin >> value;
-	//tree.erase(value);
-	tree.print();
-	cout << "Глубина дерева: " << tree.depth() << endl;
+	setColor(Magenta, Black);
+	cout << "Дерево со строго заданными значениями: ";
+	setColor(White, Black);
+	handle_tree.print();
+	
+	int handle_value;
 
+	cout << "Введите удаляемое значение: "; cin >> handle_value;
+	handle_tree.erase(handle_value);
+	setColor(Magenta, Black);
+	cout << "Дерево со строго заданными значениями после удаления элемента: ";
+	setColor(White, Black);
+	handle_tree.print();
+	cout << "Глубина дерева: " << handle_tree.depth() << endl;
+	handle_tree.PrintTree(20, 5);
+	handle_tree.TreeBalance();
+	handle_tree.PrintTree(20, 30);
+	setCursor(0, 50);
+
+	_getch();
+	system("cls");
+	setCursor(0, 0);
+	Tree test_tree;
+	cout << "Введите размер дерева: "; cin >> n;
+	for (int i = 0; i < n; i++)
+	{
+		test_tree.insert(rand() % 100);
+	}
+	test_tree.print();
+	vptr = &Tree::print;
+	cout << "Время выполнения print: " << tree.void_m_Counter(&tree, vptr) << " секунд" << endl;
 #endif // NOT_RANDOM_TREE
-
-
-
 
 
 }
